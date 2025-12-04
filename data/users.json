@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "username": "test",
+    "email": "",
+    "passwordHash": "$2b$10$5B1r6GoHMXskGMBSQLJO8etcxNjrT2FXLrbDJ9zTSnxhdHtlgl6bC",
+    "joinedAt": 1764878368019,
+    "isAdmin": true,
+    "banned": false,
+    "followers": [],
+    "following": []
+  }
+]
