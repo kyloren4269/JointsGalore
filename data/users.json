@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "username": "test1",
+    "email": "kyloren4269@gmail.com",
+    "passwordHash": "$2b$10$8yffsgqPu6qc/X9KcRZs1eN2N/B4xnq/SEv7XBUee06HUvVHUxIFS",
+    "joinedAt": 1764877143645,
+    "isAdmin": true,
+    "banned": false,
+    "followers": [],
+    "following": []
+  }
+]
