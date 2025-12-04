@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JointsGalore - Top Joints</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+</head>
+<body>
+<div id="page-wrapper">
+
+    <header id="header">
+        <img src="/images/banner.png" alt="JointsGalore" id="banner-img">
+
+        <div id="top-bar">
+            <div id="site-title">JointsGalore</div>
+            <div id="user-links">
+                <% if (currentUser) { %>
+                    Logged in as <strong><%= currentUser %></strong>
+                    |
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="link-button">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login">Login</a> |
+                    <a href="/register">Register</a>
+                <% } %>
+            </div>
+        </div>
+
+        <nav id="nav">
+            <a href="/">Home</a>
+            <a href="/top">Top Joints</a>
+            <a href="/random">Random</a>
+            <a href="/about">About</a>
+        </nav>
+    </header>
+
+    <main id="content">
+        <h1>Top Joints</h1>
+
+        <section id="feed">
+            <% if (posts.length === 0) { %>
+                <p>No joints yet. Go roll one.</p>
+            <% } %>
+
+            <% posts.forEach(function(post) { %>
+                <article class="post">
+                    <div class="post-header">
+                        <span class="post-title"><%= post.title %></span>
+                        <span class="post-meta">
+                            Likes: <strong><%= post.likes || 0 %></strong> |
+                            Posted by <strong><%= post.author %></strong> on
+                            <%= new Date(post.createdAt).toLocaleString() %>
+                        </span>
+                    </div>
+                    <div class="post-body">
+                        <img src="/uploads/<%= post.imageFilename %>" class="post-image" alt="Joint">
+                        <p class="post-caption">
+                            <%= post.caption %>
+                        </p>
+                        <div class="post-actions">
+<form action="/posts/<%= post.id %>/like" method="post" style="display:inline;">
+    <button type="submit" class="small-btn">
+        <% if (post.likedBy && currentUser && post.likedBy.includes(currentUser)) { %>
+            Unlike
+        <% } else { %>
+            Like
+        <% } %>
+        (<%= post.likes || 0 %>)
+    </button>
+</form>
+
+
+                            <% if (currentUser && post.author === currentUser) { %>
+                                <form action="/posts/<%= post.id %>/delete" method="post" style="display:inline; margin-left:6px;">
+    <button type="submit" class="small-btn danger">Delete</button>
+</form>
+
+                            <% } %>
+                        </div>
+                    </div>
+                </article>
+            <% }); %>
+        </section>
+    </main>
+
+    <footer id="footer">
+        &copy; 2025 JointsGalore
+    </footer>
+
+</div>
+</body>
+</html>

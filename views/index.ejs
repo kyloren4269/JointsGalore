@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JointsGalore - Home</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+</head>
+<body>
+<div id="page-wrapper">
+
+    <header id="header">
+        <img src="/images/banner.png" alt="JointsGalore" id="banner-img">
+
+        <div id="top-bar">
+            <div id="site-title">JointsGalore</div>
+            <div id="user-links">
+                <% if (currentUser) { %>
+                    Logged in as
+                    <strong><a href="/user/<%= currentUser %>"><%= currentUser %></a></strong>
+                    |
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="link-button">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login">Login</a> |
+                    <a href="/register">Register</a>
+                <% } %>
+            </div>
+        </div>
+
+        <nav id="nav">
+            <a href="/">Home</a>
+            <a href="/top">Top Joints</a>
+            <a href="/random">Random</a>
+            <a href="/about">About</a>
+            <% if (isAdmin) { %>
+                <a href="/admin">Admin</a>
+            <% } %>
+        </nav>
+    </header>
+
+    <main id="content">
+        <h1>Latest Joints</h1>
+
+        <!-- Upload box -->
+        <section id="upload-box">
+            <% if (!currentUser) { %>
+                <h2>Share Your Joint</h2>
+                <p>You must <a href="/login">log in</a> to post.</p>
+            <% } else { %>
+                <h2>Share Your Joint</h2>
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <label>Title:</label>
+                        <input type="text" name="title" placeholder="Friday Night Joint">
+                    </div>
+                    <div class="form-row">
+                        <label>Caption:</label>
+                        <textarea name="caption" rows="3" placeholder="Rolled tight, burns slow..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Photo:</label>
+                        <input type="file" name="photo" id="photo-input" required>
+                    </div>
+                    <div class="form-row">
+                        <img id="photo-preview" class="preview-image" style="display:none;" alt="Preview">
+                    </div>
+                    <div class="form-row">
+                        <input type="submit" value="Upload Joint">
+                    </div>
+                </form>
+            <% } %>
+        </section>
+
+        <!-- FEED -->
+        <section id="feed">
+            <% if (posts.length === 0) { %>
+                <p>No joints posted yet. Be the first!</p>
+            <% } %>
+
+            <% posts.forEach(function(post) { %>
+                <article class="post">
+                    <div class="post-header">
+                        <span class="post-title"><%= post.title %></span>
+                        <span class="post-meta">
+                            Posted by
+                            <strong><a href="/user/<%= post.author %>"><%= post.author %></a></strong>
+                            on
+                            <%= new Date(post.createdAt).toLocaleString() %>
+                            |
+                            Likes: <strong><%= post.likes || 0 %></strong>
+                        </span>
+                    </div>
+                    <div class="post-body">
+                        <img src="/uploads/<%= post.imageFilename %>" class="post-image" alt="Joint">
+                        <div class="post-right">
+                            <p class="post-caption">
+                                <%= post.caption %>
+                            </p>
+
+                            <div class="post-actions">
+                                <form action="/posts/<%= post.id %>/like" method="post" style="display:inline;">
+                                    <button type="submit" class="small-btn">
+                                        <% if (post.likedBy && currentUser && post.likedBy.includes(currentUser)) { %>
+                                            Unlike
+                                        <% } else { %>
+                                            Like
+                                        <% } %>
+                                        (<%= post.likes || 0 %>)
+                                    </button>
+                                </form>
+
+                                <% if (currentUser && post.author === currentUser) { %>
+                                    <form action="/posts/<%= post.id %>/delete" method="post" style="display:inline; margin-left:6px;">
+                                        <button type="submit" class="small-btn danger">Delete</button>
+                                    </form>
+                                <% } %>
+                            </div>
+
+                            <!-- COMMENTS -->
+                            <div class="comments-box">
+                                <div class="comments-title">Comments</div>
+
+                                <% if (!post.comments || post.comments.length === 0) { %>
+                                    <div class="comment empty">No comments yet.</div>
+                                <% } else { %>
+                                    <% post.comments.forEach(function(comment) { %>
+                                        <div class="comment">
+                                            <span class="comment-meta">
+                                                <a href="/user/<%= comment.author %>"><%= comment.author %></a>
+                                                on
+                                                <%= new Date(comment.createdAt).toLocaleString() %>
+                                            </span>
+                                            <div class="comment-text"><%= comment.text %></div>
+
+                                            <% if (currentUser && (currentUser === comment.author || currentUser === post.author)) { %>
+                                                <form action="/posts/<%= post.id %>/comments/<%= comment.id %>/delete" method="post" style="display:inline;">
+                                                    <button type="submit" class="small-btn comment-delete">Delete</button>
+                                                </form>
+                                            <% } %>
+                                        </div>
+                                    <% }); %>
+                                <% } %>
+
+                                <% if (currentUser) { %>
+                                    <form action="/posts/<%= post.id %>/comments" method="post" class="comment-form">
+                                        <textarea name="comment" rows="2" placeholder="Add a comment..."></textarea>
+                                        <div>
+                                            <button type="submit" class="small-btn">Post Comment</button>
+                                        </div>
+                                    </form>
+                                <% } else { %>
+                                    <div class="comment-login-hint">
+                                        <a href="/login">Log in</a> to comment.
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            <% }); %>
+        </section>
+
+        <!-- PAGINATION -->
+        <% if (totalPages > 1) { %>
+            <div class="pagination">
+                <% for (let p = 1; p <= totalPages; p++) { %>
+                    <% if (p === page) { %>
+                        <span class="page-current"><%= p %></span>
+                    <% } else { %>
+                        <a href="/?page=<%= p %>" class="page-link"><%= p %></a>
+                    <% } %>
+                <% } %>
+            </div>
+        <% } %>
+
+    </main>
+
+    <footer id="footer">
+        &copy; 2025 JointsGalore. All joints displayed are fictional.
+    </footer>
+
+</div>
+
+<!-- IMAGE PREVIEW SCRIPT -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var input = document.getElementById('photo-input');
+    var preview = document.getElementById('photo-preview');
+    if (!input || !preview) return;
+
+    input.addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (file) {
+            var url = URL.createObjectURL(file);
+            preview.src = url;
+            preview.style.display = 'block';
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+    });
+});
+</script>
+
+</body>
+</html>

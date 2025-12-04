@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JointsGalore - <%= profileUser.username %>'s Profile</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+</head>
+<body>
+<div id="page-wrapper">
+
+    <header id="header">
+        <img src="/images/banner.png" alt="JointsGalore" id="banner-img">
+
+        <div id="top-bar">
+            <div id="site-title">JointsGalore</div>
+            <div id="user-links">
+                <% if (currentUser) { %>
+                    Logged in as
+                    <strong><a href="/user/<%= currentUser %>"><%= currentUser %></a></strong>
+                    |
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="link-button">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login">Login</a> |
+                    <a href="/register">Register</a>
+                <% } %>
+            </div>
+        </div>
+
+        <nav id="nav">
+            <a href="/">Home</a>
+            <a href="/top">Top Joints</a>
+            <a href="/random">Random</a>
+            <a href="/about">About</a>
+            <% if (isAdmin) { %>
+                <a href="/admin">Admin</a>
+            <% } %>
+        </nav>
+    </header>
+
+    <main id="content">
+        <h1>Profile: <%= profileUser.username %></h1>
+
+        <section class="profile-box">
+            <p>
+                Member since:
+                <strong><%= new Date(profileUser.joinedAt).toLocaleDateString() %></strong>
+            </p>
+            <p>
+                Total joints posted:
+                <strong><%= totalPosts %></strong>
+            </p>
+            <p>
+                Total likes on their joints:
+                <strong><%= totalLikes %></strong>
+            </p>
+            <p>
+                Followers:
+                <strong><%= followersCount %></strong>
+                &nbsp;|&nbsp;
+                Following:
+                <strong><%= followingCount %></strong>
+            </p>
+
+            <% if (currentUser && currentUser !== profileUser.username) { %>
+                <form action="/user/<%= profileUser.username %>/<%= (currentUserObj && currentUserObj.following && currentUserObj.following.includes(profileUser.username)) ? 'unfollow' : 'follow' %>" method="post" style="display:inline;">
+                    <button type="submit" class="small-btn">
+                        <% if (currentUserObj && currentUserObj.following && currentUserObj.following.includes(profileUser.username)) { %>
+                            Unfollow
+                        <% } else { %>
+                            Follow
+                        <% } %>
+                    </button>
+                </form>
+            <% } %>
+        </section>
+
+        <h2><%= profileUser.username %>'s Joints</h2>
+
+        <section id="feed">
+            <% if (posts.length === 0) { %>
+                <p>No joints posted yet.</p>
+            <% } %>
+
+            <% posts.forEach(function(post) { %>
+                <article class="post">
+                    <div class="post-header">
+                        <span class="post-title"><%= post.title %></span>
+                        <span class="post-meta">
+                            Posted on
+                            <%= new Date(post.createdAt).toLocaleString() %>
+                            |
+                            Likes: <strong><%= post.likes || 0 %></strong>
+                        </span>
+                    </div>
+                    <div class="post-body">
+                        <img src="/uploads/<%= post.imageFilename %>" class="post-image" alt="Joint">
+                        <div class="post-right">
+                            <p class="post-caption">
+                                <%= post.caption %>
+                            </p>
+
+                            <div class="post-actions">
+                                <form action="/posts/<%= post.id %>/like" method="post" style="display:inline;">
+                                    <button type="submit" class="small-btn">
+                                        <% if (post.likedBy && currentUser && post.likedBy.includes(currentUser)) { %>
+                                            Unlike
+                                        <% } else { %>
+                                            Like
+                                        <% } %>
+                                        (<%= post.likes || 0 %>)
+                                    </button>
+                                </form>
+
+                                <% if (currentUser && post.author === currentUser) { %>
+                                    <form action="/posts/<%= post.id %>/delete" method="post" style="display:inline; margin-left:6px;">
+                                        <button type="submit" class="small-btn danger">Delete</button>
+                                    </form>
+                                <% } %>
+                            </div>
+
+                            <!-- COMMENTS (same as home) -->
+                            <div class="comments-box">
+                                <div class="comments-title">Comments</div>
+
+                                <% if (!post.comments || post.comments.length === 0) { %>
+                                    <div class="comment empty">No comments yet.</div>
+                                <% } else { %>
+                                    <% post.comments.forEach(function(comment) { %>
+                                        <div class="comment">
+                                            <span class="comment-meta">
+                                                <a href="/user/<%= comment.author %>"><%= comment.author %></a>
+                                                on
+                                                <%= new Date(comment.createdAt).toLocaleString() %>
+                                            </span>
+                                            <div class="comment-text"><%= comment.text %></div>
+
+                                            <% if (currentUser && (currentUser === comment.author || currentUser === post.author)) { %>
+                                                <form action="/posts/<%= post.id %>/comments/<%= comment.id %>/delete" method="post" style="display:inline;">
+                                                    <button type="submit" class="small-btn comment-delete">Delete</button>
+                                                </form>
+                                            <% } %>
+                                        </div>
+                                    <% }); %>
+                                <% } %>
+
+                                <% if (currentUser) { %>
+                                    <form action="/posts/<%= post.id %>/comments" method="post" class="comment-form">
+                                        <textarea name="comment" rows="2" placeholder="Add a comment..."></textarea>
+                                        <div>
+                                            <button type="submit" class="small-btn">Post Comment</button>
+                                        </div>
+                                    </form>
+                                <% } else { %>
+                                    <div class="comment-login-hint">
+                                        <a href="/login">Log in</a> to comment.
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            <% }); %>
+        </section>
+    </main>
+
+    <footer id="footer">
+        &copy; 2025 JointsGalore
+    </footer>
+
+</div>
+</body>
+</html>

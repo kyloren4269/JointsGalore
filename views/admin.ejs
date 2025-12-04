@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JointsGalore - Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+</head>
+<body>
+<div id="page-wrapper">
+
+    <header id="header">
+        <img src="/images/banner.png" alt="JointsGalore" id="banner-img">
+
+        <div id="top-bar">
+            <div id="site-title">JointsGalore - Admin Panel</div>
+            <div id="user-links">
+                <% if (currentUser) { %>
+                    Logged in as
+                    <strong><a href="/user/<%= currentUser %>"><%= currentUser %></a></strong>
+                    |
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="link-button">Logout</button>
+                    </form>
+                <% } %>
+            </div>
+        </div>
+
+        <nav id="nav">
+            <a href="/">Home</a>
+            <a href="/top">Top Joints</a>
+            <a href="/random">Random</a>
+            <a href="/about">About</a>
+            <a href="/admin">Admin</a>
+        </nav>
+    </header>
+
+    <main id="content">
+        <h1>Admin Dashboard</h1>
+
+        <h2>Users</h2>
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Joined</th>
+                <th>Admin</th>
+                <th>Banned</th>
+                <th>Followers</th>
+                <th>Following</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% users.forEach(function(u) { %>
+                <tr>
+                    <td><a href="/user/<%= u.username %>"><%= u.username %></a></td>
+                    <td><%= new Date(u.joinedAt).toLocaleDateString() %></td>
+                    <td><%= u.isAdmin ? 'Yes' : 'No' %></td>
+                    <td><%= u.banned ? 'Yes' : 'No' %></td>
+                    <td><%= (u.followers || []).length %></td>
+                    <td><%= (u.following || []).length %></td>
+                    <td>
+                        <% if (!u.isAdmin) { %>
+                            <form action="/admin/users/<%= u.username %>/make-admin" method="post" style="display:inline;">
+                                <button type="submit" class="small-btn">Make Admin</button>
+                            </form>
+                        <% } %>
+
+                        <% if (!u.banned) { %>
+                            <form action="/admin/users/<%= u.username %>/ban" method="post" style="display:inline;">
+                                <button type="submit" class="small-btn danger">Ban</button>
+                            </form>
+                        <% } else { %>
+                            <form action="/admin/users/<%= u.username %>/unban" method="post" style="display:inline;">
+                                <button type="submit" class="small-btn">Unban</button>
+                            </form>
+                        <% } %>
+                    </td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+
+        <h2>All Posts</h2>
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Author</th>
+                <th>Title</th>
+                <th>Likes</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% posts.forEach(function(p) { %>
+                <tr>
+                    <td><%= p.id %></td>
+                    <td><a href="/user/<%= p.author %>"><%= p.author %></a></td>
+                    <td><%= p.title %></td>
+                    <td><%= p.likes || 0 %></td>
+                    <td><%= new Date(p.createdAt).toLocaleString() %></td>
+                    <td>
+                        <form action="/admin/posts/<%= p.id %>/delete" method="post" style="display:inline;">
+                            <button type="submit" class="small-btn danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </main>
+
+    <footer id="footer">
+        &copy; 2025 JointsGalore
+    </footer>
+
+</div>
+</body>
+</html>

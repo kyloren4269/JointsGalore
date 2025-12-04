@@ -1,0 +1,22 @@
+[
+  {
+    "username": "McPickler",
+    "email": "kyloren4269@gmail.com",
+    "passwordPlain": "Reed1978!",
+    "joinedAt": 1764872750761,
+    "isAdmin": true,
+    "banned": false,
+    "followers": [],
+    "following": []
+  },
+  {
+    "username": "test",
+    "email": "jacksonmurphy0721@gmail.com",
+    "passwordPlain": "test123",
+    "joinedAt": 1764872750761,
+    "isAdmin": false,
+    "banned": false,
+    "followers": [],
+    "following": []
+  }
+]

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JointsGalore - About</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+</head>
+<body>
+<div id="page-wrapper">
+
+    <header id="header">
+        <img src="/images/banner.png" alt="JointsGalore" id="banner-img">
+
+        <div id="top-bar">
+            <div id="site-title">JointsGalore</div>
+            <div id="user-links">
+                <% if (currentUser) { %>
+                    Logged in as <strong><%= currentUser %></strong>
+                    |
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="link-button">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login">Login</a> |
+                    <a href="/register">Register</a>
+                <% } %>
+            </div>
+        </div>
+
+        <nav id="nav">
+            <a href="/">Home</a>
+            <a href="/top">Top Joints</a>
+            <a href="/random">Random</a>
+            <a href="/about">About</a>
+        </nav>
+    </header>
+
+    <main id="content">
+        <h1>About JointsGalore</h1>
+
+        <p>
+            JointsGalore is a online photo wall for your finest joints.
+            Make an account, upload your rolls, and see what everyone else is smoking on.
+        </p>
+
+        <p>
+            Features:
+        </p>
+        <ul>
+            <li>Public gallery of joints</li>
+            <li>Likes and top-joint board</li>
+            <li>Random joint picker for when you’re bored</li>
+        </ul>
+
+        <p>
+            This site is for fun and not complete. <br>
+            Created by McPickler.
+        </p>
+    </main>
+
+    <footer id="footer">
+        &copy; 2025 JointsGalore
+    </footer>
+
+</div>
+</body>
+</html>

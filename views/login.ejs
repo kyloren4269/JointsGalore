@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JointsGalore - Login</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+</head>
+<body>
+<div id="page-wrapper">
+
+    <header id="header-small">
+        <a href="/">
+            <img src="/images/banner.png" alt="JointsGalore" id="banner-img-small">
+        </a>
+    </header>
+
+    <main id="content">
+        <h1>User Login</h1>
+
+        <div class="auth-box">
+            <% if (error) { %>
+                <div class="error-box"><%= error %></div>
+            <% } %>
+
+            <form method="post" action="/login">
+                <div class="form-row">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+
+                <div class="form-row">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <div class="form-row">
+                    <input type="submit" value="Login">
+                </div>
+
+                <div class="form-row small-text">
+                    No account? <a href="/register">Register here</a>.
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer id="footer">
+        &copy; 2025 JointsGalore
+    </footer>
+
+</div>
+</body>
+</html>
