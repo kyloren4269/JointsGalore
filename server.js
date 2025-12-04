@@ -3,6 +3,9 @@ const session = require('express-session');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcrypt');
+const SALT_ROUNDS = 10;
+
 
 const app = express();
 
@@ -100,13 +103,14 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-    session({
-        secret: 'replace_this_with_a_long_random_string',
-        resave: false,
-        saveUninitialized: false
-    })
-);
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me';
+
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -295,16 +299,19 @@ app.post('/register', (req, res) => {
             error = 'Username already taken.';
         } else {
             const isFirstUser = users.length === 0;
-            users.push({
-                username,
-                email: email || '',
-                passwordPlain: password, // ⚠ in real life, hash this
-                joinedAt: Date.now(),
-                isAdmin: isFirstUser,    // first user becomes admin
-                banned: false,
-                followers: [],
-                following: []
-            });
+            const passwordHash = bcrypt.hashSync(password, SALT_ROUNDS);
+
+users.push({
+    username,
+    email: email || '',
+    passwordHash,
+    joinedAt: Date.now(),
+    isAdmin: isFirstUser,
+    banned: false,
+    followers: [],
+    following: []
+});
+
             saveUsers(users);
             req.session.username = username;
             return res.redirect('/');
@@ -320,9 +327,17 @@ app.post('/login', (req, res) => {
     const { username, password } = req.body;
     let users = normaliseUsers(loadUsers());
 
-    const user = users.find(
-        u => u.username === username && u.passwordPlain === password
-    );
+    const user = users.find(u => u.username === username);
+
+if (!user) {
+    return res.status(401).render('login', { error: 'Invalid username or password.' });
+}
+
+const ok = bcrypt.compareSync(password, user.passwordHash);
+if (!ok) {
+    return res.status(401).render('login', { error: 'Invalid username or password.' });
+}
+
 
     if (!user) {
         return res.status(401).render('login', {
